@@ -14,7 +14,7 @@ import sys
 import traceback
 
 PING_COUNT=4
-NAME_OF_DEBIAN_TESTMACHINE="Testdebian"
+NAME_OF_DEBIAN_TESTMACHINE="Testdebian-Icinga"
 LIBVIRT_SYSTEM_PATH='qemu:///system'
 PATH_FOR_REPORTS='/root/testresults'
 
@@ -49,9 +49,9 @@ def run_test(test):
     global PATH_FOR_REPORTS
     result = test.execute()
     result.print_report()
-    result.output_to_file(PATH_FOR_REPORTS + '/' + test._domain + '_' + test._short_description.replace(' ', '-') + '_' + test._gateway)
+    #result.output_to_file(PATH_FOR_REPORTS + '/' + test._domain + '_' + test._short_description.replace(' ', '-') + '_' + test._gateway)
     #report_if_failed(result)
-    
+    result.report_to_icinga()
 
 def report_if_none_failed():
     global one_failed
@@ -72,8 +72,10 @@ def wait_for_test_to_pass(test, maxtime=int(120)):
         result = test.execute()
         result.print_report()
         if result.passed():
+            result.report_to_icinga()
             return
     #report_if_failed(result)
+    result.report_to_icinga()
     #raise Exception("End of time")
     print("End of time, continue anyway")
 
