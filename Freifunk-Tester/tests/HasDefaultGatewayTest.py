@@ -8,9 +8,11 @@ class HasDefaultGatewayTest(AbstractTest):
         if protocol == 4:
             self._command_string = "ip r s\r"
             self._short_description = 'Has IPv4 default gateway'
+            self._icinga_service = 'FreifunkTester%20IPv4_Gateway'
         elif protocol == 6:
             self._command_string = "ip -6 r s\r"
             self._short_description = 'Has IPv6 default gateway'
+            self._icinga_service = 'FreifunkTester%20IPv6_Gateway'
         else:
             raise ValueError('IP protocol version must be 4 or 6.')
 
