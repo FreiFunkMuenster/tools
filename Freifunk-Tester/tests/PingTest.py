@@ -8,9 +8,11 @@ class PingTest(AbstractTest):
         if protocol == 4:
             self._command_string = "ping -c4 " + destination + "\r"
             self._short_description = 'IPv4 ping test to ' + destination
+            self._icinga_service = 'FreifunkTester%20Ping%20IPv4'
         elif protocol == 6:
             self._command_string = "ping6 -c4 " + destination + "\r"
             self._short_description = 'IPv6 ping test to ' + destination
+            self._icinga_service = 'FreifunkTester%20Ping%20IPv6'
         else:
             raise ValueError('IP protocol version must be 4 or 6.')
 

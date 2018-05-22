@@ -1,5 +1,6 @@
+import os
 class TestResult(object):
-    def __init__(self, passed, short_description, benchmark_description, benchmark_number, testDescription, rawOutput, domain="unknown", gateway="random", optionalStuff=None):
+    def __init__(self, passed, short_description, benchmark_description, benchmark_number, testDescription, rawOutput, icinga_service, domain="unknown", gateway="random", optionalStuff=None):
         self.__passed = passed
         self.__benchmark_number = benchmark_number
         self.__testDescription = testDescription
@@ -9,6 +10,7 @@ class TestResult(object):
         self.__short_description = short_description
         self.__domain=domain
         self.__gateway=gateway
+        self.__icinga_service = icinga_service 
 
     def passed(self):
         return self.__passed
@@ -42,3 +44,22 @@ class TestResult(object):
              fileobject.write('1\n')
         fileobject.write(self.report())
         fileobject.close()
+
+    def report_to_icinga(self):
+        servicename = self.__domain + '%20' + self.__icinga_service 
+        if self.passed():
+             exit_status = '0'
+             plugin_output = 'ok: ' + self.__short_description + ', ' + self.__benchmark_description + ': ' + str(self.__benchmark_number)
+        else:
+             exit_status = '1'
+             plugin_output = 'failed: ' + self.__short_description + ', ' + self.__benchmark_description + ': ' + str(self.__benchmark_number)
+
+        curl_command = '''curl -k -s -u $(cat /root/ICINGA_AUTH) -H 'Accept: application/json' -X POST 'https://icinga.freifunk-muenster.de:5665/v1/actions/process-check-result?service=remue!''' + servicename + '''' -d "{ \\\"exit_status\\\": ''' + exit_status + ''', \\\"plugin_output\\\": \\\"''' + plugin_output + '''\\\" }"'''
+        #print(curl_command)
+        os.system( curl_command )
+        print('')
+       
+
+
+
+ 
