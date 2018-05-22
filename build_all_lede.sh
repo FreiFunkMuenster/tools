@@ -5,7 +5,7 @@ DEFAULT_GLUON_SITEDIR=`dirname \`pwd\``'/site/'
 DEFAULT_SITE_URL="https://github.com/FreiFunkMuenster/site-ffms.git"
 DEFAULT_GLUON_URL="https://github.com/freifunk-gluon/gluon.git"
 DEFAULT_GLUON_DIR='../gluon'
-HIPCHAT_NOTIFY_URL="https://hc.infrastruktur.ms/v2/room/5/notification?auth_token=$(cat HIPCHAT_AUTH_TOKEN)" # HIPCHAT_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für HipChat enthalten.
+HIPCHAT_NOTIFY_URL="https://hc.infrastruktur.ms/v2/room/34/notification?auth_token=$(cat HIPCHAT_AUTH_TOKEN)" # HIPCHAT_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für HipChat enthalten.
 GLUON_VERSION=""
 VERSION=""
 TARGETS=""
