@@ -15,6 +15,12 @@ if [ -f TELEGRAM_AUTH_TOKEN ]; then
 else
 	TELEGRAM_NOTIFY_URL=""
 fi
+if [ -f ZULIP_AUTH_TOKEN ]; then
+        ZULIP_NOTIFY_URL="https://zulip.freifunk-muensterland.de/api/v1/messages" #ZULIP_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthCredentials für Zulip enthalten.
+else
+        ZULIP_NOTIFY_URL=""
+fi
+
 TELEGRAM_NOTIFY_CHATID=""
 GLUON_VERSION=""
 VERSION=""
@@ -82,6 +88,9 @@ function notify () {
 	fi
         if [ ! -z "$TELEGRAM_NOTIFY_URL" ]; then
                 curl --max-time 10 -d "chat_id=$TELEGRAM_NOTIFY_CHATID&text=$MESSAGE" $TELEGRAM_NOTIFY_URL
+        fi
+        if [ ! -z "$ZULIP_NOTIFY_URL" ]; then
+		curl $ZULIP_NOTIFY_URL -u $(cat ZULIP_AUTH_TOKEN) -d "type=stream" -d "to=Firmware Log" -d "subject=Log" -d "content=$MESSAGE"
         fi
 }
 
