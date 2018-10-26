@@ -5,18 +5,18 @@ DEFAULT_GLUON_SITEDIR=`dirname \`pwd\``'/site/'
 DEFAULT_SITE_URL="https://github.com/FreiFunkMuenster/site-ffms.git"
 DEFAULT_GLUON_URL="https://github.com/freifunk-gluon/gluon.git"
 DEFAULT_GLUON_DIR='../gluon'
-if [ -f HIPCHAT_AUTH_TOKEN ]; then
-	HIPCHAT_NOTIFY_URL="https://hc.infrastruktur.ms/v2/room/34/notification?auth_token=$(cat HIPCHAT_AUTH_TOKEN)" # HIPCHAT_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für HipChat enthalten.
-else
-	HIPCHAT_NOTIFY_URL=""
-fi
+#if [ -f HIPCHAT_AUTH_TOKEN ]; then
+#	HIPCHAT_NOTIFY_URL="https://hc.infrastruktur.ms/v2/room/34/notification?auth_token=$(cat HIPCHAT_AUTH_TOKEN)" # HIPCHAT_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für HipChat enthalten.
+#else
+#	HIPCHAT_NOTIFY_URL=""
+#fi
 if [ -f TELEGRAM_AUTH_TOKEN ]; then
 	TELEGRAM_NOTIFY_URL="https://api.telegram.org/bot$(cat TELEGRAM_AUTH_TOKEN)/sendMessage" #TELEGRAM_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für Telegram enthalten.
 else
 	TELEGRAM_NOTIFY_URL=""
 fi
 if [ -f ZULIP_AUTH_TOKEN ]; then
-        ZULIP_NOTIFY_URL="https://zulip.freifunk-muensterland.de/api/v1/messages" #ZULIP_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthCredentials für Zulip enthalten.
+        ZULIP_NOTIFY_URL="https://zulip.freifunk-muensterland.de/api/v1/messages" #ZULIP_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthCredential für Zulip enthalten.
 else
         ZULIP_NOTIFY_URL=""
 fi
