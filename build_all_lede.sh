@@ -1,5 +1,4 @@
 #!/bin/bash
-
 DEFAULT_GLUON_IMAGEDIR_PREFIX='/var/www/html/'
 DEFAULT_GLUON_SITEDIR=`dirname \`pwd\``'/site/'
 DEFAULT_SITE_URL="https://github.com/FreiFunkMuenster/site-ffms.git"
@@ -50,7 +49,6 @@ function set_arguments_not_passed () {
 	GLUON_URL=${GLUON_URL:-$DEFAULT_GLUON_URL}
 	RETRIES=${RETRIES:-1}
 	SKIP_GLUON_PREBUILD_ACTIONS=${SKIP_GLUON_PREBUILD_ACTIONS:-0}
-
 	GLUON_DIR=$(expand_relativ_path "$GLUON_DIR")
 	GLUON_SITEDIR=$(expand_relativ_path "$GLUON_SITEDIR")
 	GLUON_IMAGEDIR=$(expand_relativ_path "$GLUON_IMAGEDIR")
@@ -236,11 +234,10 @@ All parameters can be set in one of the following ways: -e <value>, -e<value>, -
 	--site-url: URL to the site configuration. Default is site-ffms of Freifunk Münsterland.
 	-D --enable-debugging: Enables debugging by setting "set -x". This must be the first parameter, if you want to debug the parameter parsing.
 	-B --enable-broken: Enable the building of broken targets and broken images.
-	-S --skip-gluon-prebuilds: Skip make dirclean of Gluon folder. 
+	-S --skip-gluon-prebuilds: Skip make dirclean of Gluon folder.
 	-d --domain: Branches of your site-Git-repository to build. If left empty, all Domäne-XX will be build. This parameter can be used multiple times or you can set multiple branches at once, seperated by space and in quotes: "branch1 branch2 branch3".
 	-t*|--target: Targets to build. If left empty, all targets will be build. If broken is set, even those will be build. This parameter can be used multiple times or you can set multiple targets at once, seperated by space and in quotes: "target1 target2 target3".
 	-f --force-dire-clean: Force a make dir clean after each target.
-
 
 Please report issues here: https://github.com/FreiFunkMuenster/tools/issues
 
@@ -340,8 +337,11 @@ function build_target_for_domaene () {
 }
 
 function make_manifests () {
+	notify "purple" "Erstelle experimental-Manifest" false
 	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=experimental GLUON_PRIORITY=0 $MAKE_OPTS GLUON_IMAGEDIR="$imagedir"
+        notify "purple" "Erstelle beta-Manifest" false
 	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=beta GLUON_PRIORITY=1 $MAKE_OPTS GLUON_IMAGEDIR="$imagedir"
+        notify "purple" "Erstelle stable-Manifest" false
 	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=stable GLUON_PRIORITY=3 $MAKE_OPTS GLUON_IMAGEDIR="$imagedir"
 }
 
@@ -370,6 +370,12 @@ function build_selected_domains_and_selected_targets () {
 	done
 }
 
+function syncToFirmwareDownloader () {
+	notify "yellow" "Synchronisiere Daten mit dem Firmware-Server" true
+	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 223" /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
+       	notify "green" "Synchronisierung der Daten abgeschlossen." true
+}
+
 process_arguments "$@"
 notify "green" "Build $GLUON_VERSION+$VERSION gestartet." true
 build_make_opts
@@ -384,3 +390,4 @@ then
 fi
 build_selected_domains_and_selected_targets
 notify "green" "Build $GLUON_VERSION+$VERSION abgeschlossen." true
+syncToFirmwareDownloader
