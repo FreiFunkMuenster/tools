@@ -8,12 +8,13 @@ with open('domains.csv', newline='') as csvfile:
     next(domainDB, None)
     for row in domainDB:
         domainNumb = row[0]
-        domainName = row[1]
-        publicName = row[2]
-        internName = row[3]
-        domainSeed = row[4]
-        ipv4Prefix = row[5]
-        ipv6Prefix = row[6]
+        githubNumb = row[1]
+        domainName = row[2]
+        publicName = row[3]
+        internName = row[4]
+        domainSeed = row[5]
+        ipv4Prefix = row[6]
+        ipv6Prefix = row[7]
         print("Generiere Domain-Nummer" + domainNumb)
         print("     Domain-Name :" + domainName)
         print("     Public-Name :" + publicName)
