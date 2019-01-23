@@ -13,8 +13,8 @@ change_if_necessary () {
         echo "Nichts zu tun"   
     fi
 }
- 
-count=$(batctl o | grep ^$(batctl gwl | grep -oE "=> [^ ]+" | grep -oE "[a-f0-9\:]+" || echo offline) | grep -o "\].*" | grep -oE "\(2[0-9]{2}\)" | wc -l)
+
+count=$(batctl o | grep "[ \*] $(batctl gwl | grep -oE "\* [^ ]+" | grep -oE "[a-f0-9\:]+" || echo offline)" | grep -oE "\(2[0-9]{2}\)" | wc -l)
 if [[ $count -lt 1 ]]
 then
     echo "VPN ein"
