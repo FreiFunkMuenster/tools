@@ -1,6 +1,6 @@
 #!/bin/sh
-alt=$(uci show tunneldigger|grep broker|grep enabled)
-alt=${alt:33:1}
+alt=$(uci show tunneldigger|grep mesh_vpn|grep enabled)
+alt=${alt:31:1}
 echo $alt
  
 change_if_necessary () {
@@ -14,7 +14,7 @@ change_if_necessary () {
     fi
 }
 
-count=$(batctl o | grep "[ \*] $(batctl gwl | grep -oE "\* [^ ]+" | grep -oE "[a-f0-9\:]+" || echo offline)" | grep -oE "\(([5-9][0-9]|2[0-9]{2})\)" | wc -l)
+count=$(batctl o | grep "[ \*] $(batctl gwl | grep -oE "\* [^ ]+" | grep -oE "[a-f0-9\:]+" || echo offline)" | grep -oE "\((1[5-9][0-9]|2[0-9]{2})\)" | wc -l)
 if [[ $count -lt 1 ]]
 then
     echo "VPN ein"
