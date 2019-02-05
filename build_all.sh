@@ -372,7 +372,7 @@ function build_selected_domains_and_selected_targets () {
 
 function syncToFirmwareDownloader () {
 	notify "yellow" "Synchronisiere Daten mit dem Firmware-Server" true
-	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 223" /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
+	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 22 -6" /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
        	notify "green" "Synchronisierung der Daten abgeschlossen." true
 }
 
