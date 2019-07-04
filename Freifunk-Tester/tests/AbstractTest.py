@@ -11,6 +11,7 @@ class AbstractTest(ABC):
         self._short_description = "Your test lacks a short description."
         self._domain = domain
         self._gateway = gateway
+        self._icinga_service = 'Icinga-Service-Name'
 
     def _runCommand(self):
         self._serial.write(self._command_string.encode('utf-8'))
@@ -18,7 +19,7 @@ class AbstractTest(ABC):
 
     def execute(self):
         rawOutput = self._runCommand()
-        return TestResult(self.validate(rawOutput), self._short_description, self._benchmark_description, self.benchmark(rawOutput), self._testDescription, rawOutput, domain=self._domain)
+        return TestResult(self.validate(rawOutput), self._short_description, self._benchmark_description, self.benchmark(rawOutput), self._testDescription, rawOutput, self._icinga_service, domain=self._domain)
 
     @abstractmethod
     def validate(self, result):

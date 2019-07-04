@@ -1,11 +1,26 @@
 #!/bin/bash
-
 DEFAULT_GLUON_IMAGEDIR_PREFIX='/var/www/html/'
 DEFAULT_GLUON_SITEDIR=`dirname \`pwd\``'/site/'
-DEFAULT_SITE_URL="https://github.com/FreiFunkMuenster/site-ffms.git"
+DEFAULT_SITE_URL="https://github.com/FreiFunkMuenster/site-ffmsl.git"
 DEFAULT_GLUON_URL="https://github.com/freifunk-gluon/gluon.git"
 DEFAULT_GLUON_DIR='../gluon'
-HIPCHAT_NOTIFY_URL="https://hc.infrastruktur.ms/v2/room/5/notification?auth_token=$(cat HIPCHAT_AUTH_TOKEN)" # HIPCHAT_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für HipChat enthalten.
+#if [ -f HIPCHAT_AUTH_TOKEN ]; then
+#	HIPCHAT_NOTIFY_URL="https://hc.infrastruktur.ms/v2/room/34/notification?auth_token=$(cat HIPCHAT_AUTH_TOKEN)" # HIPCHAT_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für HipChat enthalten.
+#else
+#	HIPCHAT_NOTIFY_URL=""
+#fi
+if [ -f TELEGRAM_AUTH_TOKEN ]; then
+	TELEGRAM_NOTIFY_URL="https://api.telegram.org/bot$(cat TELEGRAM_AUTH_TOKEN)/sendMessage" #TELEGRAM_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthToken für Telegram enthalten.
+else
+	TELEGRAM_NOTIFY_URL=""
+fi
+if [ -f ZULIP_AUTH_TOKEN ]; then
+        ZULIP_NOTIFY_URL="https://zulip.freifunk-muensterland.de/api/v1/messages" #ZULIP_AUTH_TOKEN Muss als Datei im gleichen Ordner wie build_all.sh liegen und den AuthCredential für Zulip enthalten.
+else
+        ZULIP_NOTIFY_URL=""
+fi
+
+TELEGRAM_NOTIFY_CHATID=""
 GLUON_VERSION=""
 VERSION=""
 TARGETS=""
@@ -19,6 +34,7 @@ BROKEN=""
 RETRIES=""
 SKIP_GLUON_PREBUILD_ACTIONS=""
 imagedir=""
+FORCE_DIR_CLEAN=""
 
 function expand_relativ_path () {
 	echo ${1/../$(dirname $(pwd))}
@@ -33,10 +49,10 @@ function set_arguments_not_passed () {
 	GLUON_URL=${GLUON_URL:-$DEFAULT_GLUON_URL}
 	RETRIES=${RETRIES:-1}
 	SKIP_GLUON_PREBUILD_ACTIONS=${SKIP_GLUON_PREBUILD_ACTIONS:-0}
-
 	GLUON_DIR=$(expand_relativ_path "$GLUON_DIR")
 	GLUON_SITEDIR=$(expand_relativ_path "$GLUON_SITEDIR")
 	GLUON_IMAGEDIR=$(expand_relativ_path "$GLUON_IMAGEDIR")
+	FORCE_DIR_CLEAN=${FORCE_DIR_CLEAN:-0}
 }
 
 function split_value_from_argument () {
@@ -61,12 +77,19 @@ function split_value_from_argument () {
 	return 0
 }
 
-function hc_notify () {
+function notify () {
 	COLOR=$1
 	MESSAGE=$2
 	NOTIFY=$3
-	
-	curl -d '{"color":"'"$COLOR"'","message":"'"$(hostname) --> $MESSAGE"'","notify":"'"$NOTIFY"'","message_format":"text"}' -H 'Content-Type: application/json' $HIPCHAT_NOTIFY_URL
+	if [ ! -z "$HIPCHAT_NOTIFY_URL" ]; then
+		curl -d '{"color":"'"$COLOR"'","message":"'"$(hostname) --> $MESSAGE"'","notify":"'"$NOTIFY"'","message_format":"text"}' -H 'Content-Type: application/json' $HIPCHAT_NOTIFY_URL
+	fi
+        if [ ! -z "$TELEGRAM_NOTIFY_URL" ]; then
+                curl --max-time 10 -d "chat_id=$TELEGRAM_NOTIFY_CHATID&text=$MESSAGE" $TELEGRAM_NOTIFY_URL
+        fi
+        if [ ! -z "$ZULIP_NOTIFY_URL" ]; then
+		curl --silent --output /dev/null $ZULIP_NOTIFY_URL -u $(cat ZULIP_AUTH_TOKEN) -d "type=stream" -d "to=Firmware Log" -d "subject=Log" -d "content=$MESSAGE" 2> /dev/null
+        fi
 }
 
 function enable_debugging () {
@@ -130,6 +153,9 @@ function process_arguments () {
 			-D|--enable-debugging)
 				enable_debugging
 				;;
+			-f|--force-dir-clean)
+				FORCE_DIR_CLEAN=1
+				;;
 			-B|--enable-broken)
 				BROKEN="BROKEN=1"
 				;;
@@ -179,7 +205,7 @@ function process_arguments () {
 }
 
 function build_make_opts () {
-	MAKE_OPTS="-C $GLUON_DIR GLUON_SITEDIR=$GLUON_SITEDIR -j$CORES V=s $BROKEN FORCE_UNSAFE_CONFIGURE=1 GLUON_RELEASE=$GLUON_VERSION+$VERSION"
+	MAKE_OPTS="-C $GLUON_DIR GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_SITEDIR=$GLUON_SITEDIR -j$CORES V=s $BROKEN FORCE_UNSAFE_CONFIGURE=1"
 }
 
 function is_git_repo () {
@@ -208,10 +234,10 @@ All parameters can be set in one of the following ways: -e <value>, -e<value>, -
 	--site-url: URL to the site configuration. Default is site-ffms of Freifunk Münsterland.
 	-D --enable-debugging: Enables debugging by setting "set -x". This must be the first parameter, if you want to debug the parameter parsing.
 	-B --enable-broken: Enable the building of broken targets and broken images.
-	-S --skip-gluon-prebuilds: Skript make dirclean of Gluon folder. But openwrt/dl-folder is cached anway, just speeds up build process if you did not changes to packages.
+	-S --skip-gluon-prebuilds: Skip make dirclean of Gluon folder.
 	-d --domain: Branches of your site-Git-repository to build. If left empty, all Domäne-XX will be build. This parameter can be used multiple times or you can set multiple branches at once, seperated by space and in quotes: "branch1 branch2 branch3".
 	-t*|--target: Targets to build. If left empty, all targets will be build. If broken is set, even those will be build. This parameter can be used multiple times or you can set multiple targets at once, seperated by space and in quotes: "target1 target2 target3".
-
+	-f --force-dire-clean: Force a make dir clean after each target.
 
 Please report issues here: https://github.com/FreiFunkMuenster/tools/issues
 
@@ -245,16 +271,20 @@ function prepare_repo () {
 	fi
 }
 
-function gluon_prepare_buildprocess () {
-	rm $GLUON_IMAGEDIR/openwrt/dl
-	mkdir -p ../openwrt-dl
+function force_dir_clean () {
 	command="make dirclean $MAKE_OPTS"
 	try_execution_x_times $RETRIES "$command"
-	mkdir -p $GLUON_IMAGEDIR/openwrt
-	ln -s ../openwrt-dl $GLUON_IMAGEDIR/openwrt/dl
+}
+
+function gluon_prepare_buildprocess () {
 	command="make update ${MAKE_OPTS/-j* /-j1 }"
 	try_execution_x_times $RETRIES "$command"
-	for $target in $TARGETS
+	if [[ $FORCE_DIR_CLEAN=="1" ]]
+	then
+		force_dir_clean
+	fi
+	check_targets
+	for target in $TARGETS
 	do
 		command="make clean $MAKE_OPTS GLUON_TARGET=$target V=s -j$CORES GLUON_IMAGEDIR=$imagedir"
 		try_execution_x_times $RETRIES "$command"
@@ -295,56 +325,59 @@ function try_execution_x_times () {
 	done
 	if [[ ! $return_value == 0 ]]
 	then
-		hc_notify "red" "Build abgebrochen." true
+		notify "red" "Build abgebrochen." true
 		echo "Something went wrong. Aborting."
 		exit 1
 	fi
 }
 
 function build_target_for_domaene () {
-	command="make $MAKE_OPTS GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=stable GLUON_TARGET=$1 GLUON_IMAGEDIR=\"$imagedir\""
+	command="make $MAKE_OPTS GLUON_BRANCH=stable GLUON_TARGET=$1 GLUON_IMAGEDIR=\"$imagedir\""
 	try_execution_x_times $RETRIES "$command"
 }
 
 function make_manifests () {
-	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=experimental GLUON_PRIORITY=0 $MAKE_OPTS GLUON_IMAGEDIR="$imagedir"
-	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=beta GLUON_PRIORITY=1 $MAKE_OPTS GLUON_IMAGEDIR="$imagedir"
-	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=stable GLUON_PRIORITY=3 $MAKE_OPTS GLUON_IMAGEDIR="$imagedir"
+	notify "purple" "Erstelle experimental-Manifest" false
+	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=experimental GLUON_PRIORITY=0 $MAKE_OPTS GLUON_IMAGEDIR="$1"
+        notify "purple" "Erstelle beta-Manifest" false
+	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=beta GLUON_PRIORITY=1 $MAKE_OPTS GLUON_IMAGEDIR="$1"
+        notify "purple" "Erstelle stable-Manifest" false
+	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=stable GLUON_PRIORITY=3 $MAKE_OPTS GLUON_IMAGEDIR="$1"
 }
 
 
 function build_selected_targets_for_domaene () {
-	prefix=`echo $1|sed -e 's/Domäne-/domaene/'`
+	prefix=`echo $1|sed -e 's/Domäne-\([0-9]\+\)\(-v201.*\)\?/domaene\1/g'`
 	imagedir="$GLUON_IMAGEDIR_PREFIX"/"$prefix"/versions/v$VERSION
 	mkdir -p "$imagedir"
 	git_checkout "$GLUON_SITEDIR" $1
 	git_pull "$GLUON_SITEDIR"
 	for j in $TARGETS
 	do
-		hc_notify "yellow" "$i Target $j gestartet." false
+		notify "yellow" "$i Target $j gestartet." false
 		build_target_for_domaene $j
-		hc_notify "yellow" "$i Target $j fertig." false
+		notify "yellow" "$i Target $j fertig." false
 	done
-	make_manifests
+	make_manifests $imagedir
 }
 
 function build_selected_domains_and_selected_targets () {
 	for i in $DOMAINS_TO_BUILD
 	do
-		hc_notify "purple" "$i gestartet." false
+		notify "purple" "$i gestartet." false
 		build_selected_targets_for_domaene $i
-		hc_notify "purple" "$i fertig." false
+		notify "purple" "$i fertig." false
 	done
 }
 
-function delete_unwanted_firmwares () {
-	find $GLUON_IMAGEDIR -name '*-m5*' -exec rm {} \;
-	find $GLUON_IMAGEDIR -name '*cpe5*' -exec rm {} \;
+function syncToFirmwareDownloader () {
+	notify "yellow" "Synchronisiere Daten mit dem Firmware-Server" true
+	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 22 -6" /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
+       	notify "green" "Synchronisierung der Daten abgeschlossen." true
 }
 
-
 process_arguments "$@"
-hc_notify "green" "Build $GLUON_VERSION+$VERSION gestartet." true
+notify "green" "Build $GLUON_VERSION+$VERSION gestartet." true
 build_make_opts
 prepare_repo "$GLUON_SITEDIR" $SITE_URL
 prepare_repo "$GLUON_DIR" $GLUON_URL
@@ -356,5 +389,5 @@ then
 	gluon_prepare_buildprocess
 fi
 build_selected_domains_and_selected_targets
-delete_unwanted_firmwares
-hc_notify "green" "Build $GLUON_VERSION+$VERSION abgeschlossen." true
+notify "green" "Build $GLUON_VERSION+$VERSION abgeschlossen." true
+syncToFirmwareDownloader

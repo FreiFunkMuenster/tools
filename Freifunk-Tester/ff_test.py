@@ -12,6 +12,8 @@ import time
 import os
 import sys
 import traceback
+import requests
+import json
 
 PING_COUNT=4
 NAME_OF_DEBIAN_TESTMACHINE="Testdebian"
@@ -50,6 +52,7 @@ def run_test(test):
     result = test.execute()
     result.print_report()
     result.output_to_file(PATH_FOR_REPORTS + '/' + test._domain + '_' + test._short_description.replace(' ', '-') + '_' + test._gateway)
+    result.report_to_icinga()
     #report_if_failed(result)
     
 
@@ -72,8 +75,10 @@ def wait_for_test_to_pass(test, maxtime=int(120)):
         result = test.execute()
         result.print_report()
         if result.passed():
+            result.report_to_icinga()
             return
     #report_if_failed(result)
+    result.report_to_icinga()
     #raise Exception("End of time")
     print("End of time, continue anyway")
 
