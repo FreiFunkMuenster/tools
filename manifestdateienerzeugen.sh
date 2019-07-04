@@ -15,10 +15,14 @@ for i in stable beta experimental; do
 		model=${model%-sysupgrade.bin}
 		version=${j#*-*-}
 		version=${version%-$model-sysupgrade.bin}
-		pruefsumme256=`sha256sum $j|sed -e 's/  / /g'`
-		pruefsumme512=`sha512sum $j|sed -e 's/  / /g'`
-		echo "$model $version $pruefsumme256" >> $i.manifest
-                echo "$model $version $pruefsumme512" >> $i.manifest
+		pruefsumme256file=`sha256sum $j|sed -e 's/  / /g'`
+		pruefsumme512file=`sha512sum $j|sed -e 's/  / /g'`
+		pruefsumme256=`sha256sum $j|sed -e 's/ .*//'`
+                pruefsumme512=`sha512sum $j|sed -e 's/ .*//'`
+		fileSize=$(stat -c %s "$j")
+		echo "$model $version $pruefsumme256 $fileSize $j" >> $i.manifest
+		echo "$model $version $pruefsumme256 $j" >> $i.manifest
+                echo "$model $version $pruefsumme512 $j" >> $i.manifest
 		echo "$i $model $version"
 	done
         for j in *tar; do
@@ -26,8 +30,12 @@ for i in stable beta experimental; do
                 model=${model%-sysupgrade.tar}
                 version=${j#*-*-}
                 version=${version%-$model-sysupgrade.tar}
-                pruefsumme256=`sha256sum $j|sed -e 's/  / /g'`
-                pruefsumme512=`sha512sum $j|sed -e 's/  / /g'`
+                pruefsumme256file=`sha256sum $j|sed -e 's/  / /g'`
+                pruefsumme512file=`sha512sum $j|sed -e 's/  / /g'`
+                pruefsumme256=`sha256sum $j|sed -e 's/ .*//'`
+                pruefsumme512=`sha512sum $j|sed -e 's/ .*//'`
+		fileSize=$(stat -c %s "$j")
+		echo "$model $version $pruefsumme256 $fileSize $j" >> $i.manifest
                 echo "$model $version $pruefsumme256" >> $i.manifest
                 echo "$model $version $pruefsumme512" >> $i.manifest
 		echo "$i $model $version"
@@ -37,8 +45,12 @@ for i in stable beta experimental; do
                 model=${model%-sysupgrade.img.gz}
                 version=${j#*-*-}
                 version=${version%-$model-sysupgrade.img.gz}
-                pruefsumme256=`sha256sum $j|sed -e 's/  / /g'`
-                pruefsumme512=`sha512sum $j|sed -e 's/  / /g'`
+                pruefsumme256file=`sha256sum $j|sed -e 's/  / /g'`
+                pruefsumme512file=`sha512sum $j|sed -e 's/  / /g'`
+                pruefsumme256=`sha256sum $j|sed -e 's/ .*//'`
+                pruefsumme512=`sha512sum $j|sed -e 's/ .*//'`
+		fileSize=$(stat -c %s "$j")
+		echo "$model $version $pruefsumme256 $fileSize $j" >> $i.manifest
                 echo "$model $version $pruefsumme256" >> $i.manifest
                 echo "$model $version $pruefsumme512" >> $i.manifest
 		echo "$i $model $version"
