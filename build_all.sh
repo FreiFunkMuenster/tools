@@ -32,6 +32,7 @@ SITE_URL=""
 GLUON_URL=""
 BROKEN=""
 RETRIES=""
+DEPRECATED=""
 SKIP_GLUON_PREBUILD_ACTIONS=""
 imagedir=""
 FORCE_DIR_CLEAN=""
@@ -53,6 +54,7 @@ function set_arguments_not_passed () {
 	GLUON_SITEDIR=$(expand_relativ_path "$GLUON_SITEDIR")
 	GLUON_IMAGEDIR=$(expand_relativ_path "$GLUON_IMAGEDIR")
 	FORCE_DIR_CLEAN=${FORCE_DIR_CLEAN:-0}
+	DEPRECATED='upgrade'
 }
 
 function split_value_from_argument () {
@@ -159,6 +161,9 @@ function process_arguments () {
 			-B|--enable-broken)
 				BROKEN="BROKEN=1"
 				;;
+                        -dd|--deprecated)
+                                DEPRECATED=$value
+                                ;;
 			-S|--skip-gluon-prebuilds)
 				SKIP_GLUON_PREBUILD_ACTIONS=1
 				;;
@@ -205,7 +210,7 @@ function process_arguments () {
 }
 
 function build_make_opts () {
-	MAKE_OPTS="-C $GLUON_DIR GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_SITEDIR=$GLUON_SITEDIR -j$CORES V=s $BROKEN FORCE_UNSAFE_CONFIGURE=1"
+	MAKE_OPTS="-C $GLUON_DIR GLUON_DEPRECATED=$DEPRECATED GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_SITEDIR=$GLUON_SITEDIR -j$CORES V=s $BROKEN FORCE_UNSAFE_CONFIGURE=1"
 }
 
 function is_git_repo () {
@@ -234,6 +239,7 @@ All parameters can be set in one of the following ways: -e <value>, -e<value>, -
 	--site-url: URL to the site configuration. Default is site-ffms of Freifunk Münsterland.
 	-D --enable-debugging: Enables debugging by setting "set -x". This must be the first parameter, if you want to debug the parameter parsing.
 	-B --enable-broken: Enable the building of broken targets and broken images.
+	-dd --deprecated: Change the building of deprecated targets. 0, upgrade, full. Default: upgrade
 	-S --skip-gluon-prebuilds: Skip make dirclean of Gluon folder.
 	-d --domain: Branches of your site-Git-repository to build. If left empty, all Domäne-XX will be build. This parameter can be used multiple times or you can set multiple branches at once, seperated by space and in quotes: "branch1 branch2 branch3".
 	-t*|--target: Targets to build. If left empty, all targets will be build. If broken is set, even those will be build. This parameter can be used multiple times or you can set multiple targets at once, seperated by space and in quotes: "target1 target2 target3".
@@ -370,9 +376,9 @@ function build_selected_domains_and_selected_targets () {
 	done
 }
 
-function syncToFirmwareDownloader () {
+function synchronize_to_external_server () {
 	notify "yellow" "Synchronisiere Daten mit dem Firmware-Server" true
-	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 22 -6" /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
+	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 22 -4" /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
        	notify "green" "Synchronisierung der Daten abgeschlossen." true
 }
 
@@ -390,4 +396,4 @@ then
 fi
 build_selected_domains_and_selected_targets
 notify "green" "Build $GLUON_VERSION+$VERSION abgeschlossen." true
-syncToFirmwareDownloader
+synchronize_to_external_server
