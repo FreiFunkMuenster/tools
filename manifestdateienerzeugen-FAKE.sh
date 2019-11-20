@@ -15,6 +15,7 @@ for i in stable beta experimental; do
 		model=${model%-sysupgrade.bin}
 		version=${j#*-*-}
 		version=${version%-$model-sysupgrade.bin}
+		version="v2018.2.2+9.9.9"
 		pruefsumme256file=`sha256sum $j|sed -e 's/  / /g'`
 		pruefsumme512file=`sha512sum $j|sed -e 's/  / /g'`
 		pruefsumme256=`sha256sum $j|sed -e 's/ .*//'`
@@ -31,6 +32,7 @@ for i in stable beta experimental; do
                 model=${model%-sysupgrade.tar}
                 version=${j#*-*-}
                 version=${version%-$model-sysupgrade.tar}
+		version="v2018.2.2+9.9.9"
                 pruefsumme256file=`sha256sum $j|sed -e 's/  / /g'`
                 pruefsumme512file=`sha512sum $j|sed -e 's/  / /g'`
                 pruefsumme256=`sha256sum $j|sed -e 's/ .*//'`
@@ -47,6 +49,7 @@ for i in stable beta experimental; do
                 model=${model%-sysupgrade.img.gz}
                 version=${j#*-*-}
                 version=${version%-$model-sysupgrade.img.gz}
+		version="v2018.2.2+9.9.9"
                 pruefsumme256file=`sha256sum $j|sed -e 's/  / /g'`
                 pruefsumme512file=`sha512sum $j|sed -e 's/  / /g'`
                 pruefsumme256=`sha256sum $j|sed -e 's/ .*//'`

@@ -12,6 +12,8 @@ import time
 import os
 import sys
 import traceback
+import requests
+import json
 
 PING_COUNT=4
 NAME_OF_DEBIAN_TESTMACHINE="Testdebian-Icinga"
@@ -49,8 +51,7 @@ def run_test(test):
     global PATH_FOR_REPORTS
     result = test.execute()
     result.print_report()
-    #result.output_to_file(PATH_FOR_REPORTS + '/' + test._domain + '_' + test._short_description.replace(' ', '-') + '_' + test._gateway)
-    #report_if_failed(result)
+    result.output_to_file(PATH_FOR_REPORTS + '/' + test._domain + '_' + test._short_description.replace(' ', '-') + '_' + test._gateway)
     result.report_to_icinga()
 
 def report_if_none_failed():
