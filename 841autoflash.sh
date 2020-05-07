@@ -2,8 +2,6 @@
 IP=192.168.1.1
 FLASHSIZE="16MB"
 
-OUTFILE=finaluboot.bin
-
 while (true)
 do
     clear
@@ -61,23 +59,33 @@ do
         for((i=0;i<${#MAC};i+=2)); do MAC_FORMAT1=$MAC_FORMAT1\\x${MAC:$i:2}; done
 
         
-        if [ ! -s ${model}.bin ]
+        if [ ! -s uboot-tp-link-${model}.bin ]
         then
             echo "Uboot-Abbild fehlt, lade es herunter."
-            wget -nv -O ${model}.bin http://derowe.com/u-boot/stable/tp-link-${model}.bin;
+            wget -nv -O uboot-tp-link-${model}.bin http://derowe.com/u-boot/stable/tp-link-${model}.bin;
         fi
-        cp tp-link-${model}.bin uboot.bin
 
+
+        if [ ! -s gluon-tp-link-${model}.bin ]
+        then
+            echo "Gluon-Abbild fehlt, lade es herunter."
+            wget -nv -O gluon-tp-link-${model}.bin http://firmware.ffmsl.de/841erupgrade/gluon-tp-link-${model}-sysupgrade.bin;
+        fi
+
+
+	OUTFILE=$(mktemp newimage_${MAC}_XXXXXX --suffix=.bin)
 
         dd if=/dev/zero ibs=4k count=$COUNT_ZERO | LANG=C tr "\000" "\377" > "$OUTFILE"
         dd conv=notrunc obs=4k seek=$SEEK_ART if=artdump.bin of="$OUTFILE"
-        dd conv=notrunc  if=uboot.bin of="$OUTFILE"
-        # Hier noch überlegen, ob wir ein gluon mit draufspielen oder das sogar erforderlich is
-        #dd conv=notrunc obs=4k seek=32 if=gluonsysupgrade.bin of="$OUTFILE"
+        dd conv=notrunc  if=uboot-tp-link-${model}.bin of="$OUTFILE"
+        dd conv=notrunc obs=4k seek=32 if=gluon-tp-link-${model}.bin of="$OUTFILE"
         printf $MAC_FORMAT1 | dd conv=notrunc ibs=1 obs=256 seek=508 count=8 of="$OUTFILE"
         printf $HWID | dd conv=notrunc ibs=1 obs=256 seek=509 count=8 of="$OUTFILE"
         sync
-        echo "Jetzt den Programmer starten..."
-        echo "ch341a_spi ...parameter?"
+        echo "Abbild auf Flash schreiben. (This could take a while...)"
+        flashrom -p ch341a_spi -w $OUTFILE
+
+	echo "Temp Abbild löschen."
+	rm ${OUTFILE}
     fi
 done
