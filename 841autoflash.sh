@@ -57,8 +57,13 @@ do
         echo
         echo "Hardware-ID angepasst. Sie lautet nun: $HWID"
 
-        MAC_FORMAT1=""
-        for((i=0;i<${#MAC};i+=2)); do MAC_FORMAT1=$MAC_FORMAT1\\x${MAC:$i:2}; done
+        MAC_IN_HEX=""
+        for((i=0;i<${#MAC};i+=2)); do MAC_IN_HEX=$MAC_IN_HEX\\x${MAC:$i:2}; done
+        HWID_IN_HEX=""
+        for((i=0;i<${#HWID};i+=2)); do HWID_IN_HEX=$HWID_IN_HEX\\x${HWID:$i:2}; done
+        echo "=============================="
+        echo "HWID in HEX: $HWID_IN_HEX"
+        echo "=============================="
 
 
         if [ ! -s uboot-tp-link-${model}.bin ]
@@ -85,9 +90,9 @@ do
         echo "Schreibe Firmware ins Abbild..."
         dd status=none conv=notrunc obs=4k seek=32 if=gluon-tp-link-${model}-sysupgrade.bin of="$OUTFILE"
         echo "Schreibe MAC Adresse ins Abbild..."
-        printf $MAC_FORMAT1 | dd status=none conv=notrunc ibs=1 obs=256 seek=508 count=8 of="$OUTFILE"
+        printf $MAC_IN_HEX | dd status=none conv=notrunc ibs=1 obs=256 seek=508 count=8 of="$OUTFILE"
         echo "Schreibe Hardware-ID ins Abbild..."
-        printf $HWID | dd status=none conv=notrunc ibs=1 obs=256 seek=509 count=8 of="$OUTFILE"
+        printf $HWID_IN_HEX | dd status=none conv=notrunc ibs=1 obs=256 seek=509 count=8 of="$OUTFILE"
         sync
 
         echo "Schreibe Abbild auf Flash..."
