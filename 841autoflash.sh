@@ -14,13 +14,11 @@ do
         clear
         echo "Lese MAC Adresse..."
         MAC=$(ssh -o "StrictHostKeyChecking=no" root@$IP "hexdump -s 0x0001FC00 -n6 /dev/mtd0 |cut -d' ' -f2-4 |tr -d ' '|head -n 1")
-
         echo "Lese Hardware-ID..."
         HWID=$(ssh -o "StrictHostKeyChecking=no" root@$IP "hexdump -s 0x0001FD00 -n8 /dev/mtd0 |cut -d' ' -f2-5 |tr -d ' '|head -n 1")
-
         echo "Lese ART Partition..."
-        #ssh -o "StrictHostKeyChecking=no" root@$IP "cat /dev/$(cat /proc/mtd|grep art|cut -f1 -d':')" > artdump_${MAC}.bin
-        ssh -o "StrictHostKeyChecking=no" root@$IP "cat /dev/mtd4" > artdump_${MAC}.bin
+        ssh -o "StrictHostKeyChecking=no" root@$IP 'cat /dev/$(cat /proc/mtd|grep art|cut -f1 -d":")' > artdump_${MAC}.bin
+        #ssh -o "StrictHostKeyChecking=no" root@$IP "cat /dev/mtd4" > artdump_${MAC}.bin
 
         echo
         echo "=============================="
@@ -98,9 +96,6 @@ do
         echo "Lösche Abbild..."
         rm ${OUTFILE}
 
-        echo "Lösche ART Dump..."
-        rm artdump_${MAC}.bin
-        
 	read -s -n 1 -p "Press any key to continue . . ."
     fi
 done
