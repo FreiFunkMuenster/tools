@@ -10,6 +10,12 @@ function test_last_command_successful () {
     fi
 }
 
+if [ ! -d $(pwd)/841er-Images ]
+then
+    mkdir "$(pwd)/841er-Images"
+fi
+cd "$(pwd)/841er-Images"
+
 while (true)
 do
     clear
@@ -20,6 +26,7 @@ do
         sleep 1s
     else
         clear
+
         echo "Lese MAC Adresse..."
         MAC=$(ssh -q -o "StrictHostKeyChecking=no" root@$IP "hexdump -s 0x0001FC00 -n6 /dev/mtd0 |cut -d' ' -f2-4 |tr -d ' '|head -n 1")
         test_last_command_successful $?
@@ -32,20 +39,20 @@ do
         ssh -q -o "StrictHostKeyChecking=no" root@$IP 'cat /dev/$(cat /proc/mtd|grep art|cut -f1 -d":")' > artdump_${MAC}.bin
         test_last_command_successful $?
 
-        model=""
+        hwversion=""
 
         case ${HWID:6:2} in
         "08")
-            model="tl-wr841n-v8"
+            hwversion="v8"
             ;;
         "09")
-            model="tl-wr841n-v9"
+            hwversion="v9"
             ;;
         "10")
-            model="tl-wr841n-v10"
+            hwversion="v10"
             ;;
         "11")
-            model="tl-wr841n-v11"
+            hwversion="v11"
             ;;
         esac
 
@@ -54,10 +61,12 @@ do
             HWID=${HWID/084100/084108}
             COUNT_ZERO=2048
             SEEK_ART=2032
+            FLASHSIZE_SMALL="8m"
         else
             HWID=${HWID/084100/084116}
             COUNT_ZERO=4096
             SEEK_ART=4080
+            FLASHSIZE_SMALL="16m"
         fi
         echo "Hardware-ID angepasst. Sie lautet nun: $HWID"
 
@@ -69,18 +78,18 @@ do
         echo "Hardware-ID in HEX umgewandelt: $HWID_IN_HEX"
 
 
-        if [ ! -s uboot-tp-link-${model}.bin ]
+        if [ ! -s uboot-tp-link-tl-wr841n-${hwversion}.bin ]
         then
             echo "Uboot-Abbild fehlt, lade es herunter."
-            wget -nv -O uboot-tp-link-${model}.bin http://derowe.com/u-boot/stable/tp-link-${model}.bin;
+            wget -nv -O uboot-tp-link-tl-wr841n-${hwversion}.bin http://derowe.com/u-boot/stable/tp-link-tl-wr841n-${hwversion}.bin;
             test_last_command_successful $?
         fi
 
 
-        if [ ! -s gluon-tp-link-${model}-sysupgrade.bin ]
+        if [ ! -s gluon-tp-link-tl-wr841n-${FLASHSIZE_SMALL}-${hwversion}-sysupgrade.bin ]
         then
             echo "Gluon-Abbild fehlt, lade es herunter."
-            wget -nv -O gluon-tp-link-${model}-sysupgrade.bin http://firmware.ffmsl.de/841erupgrade/gluon-tp-link-${model}-sysupgrade.bin;
+            wget -nv -O gluon-tp-link-tl-wr841n-${FLASHSIZE_SMALL}-${hwversion}-sysupgrade.bin http://firmware.ffmsl.de/841erupgrade/gluon---GenericFactoryImage-v0.1_Gluon-v2020.1.2-tp-link-tl-wr841n-nd-mod-${FLASHSIZE_SMALL}-${hwversion}-sysupgrade.bin;
             test_last_command_successful $?
         fi
 
@@ -93,10 +102,10 @@ do
         dd status=none conv=notrunc obs=4k seek=$SEEK_ART if=artdump_${MAC}.bin of="$OUTFILE"
         test_last_command_successful $?
         echo "Schreibe Bootloader ins Abbild..."
-        dd status=none conv=notrunc  if=uboot-tp-link-${model}.bin of="$OUTFILE"
+        dd status=none conv=notrunc  if=uboot-tp-link-tl-wr841n-${hwversion}.bin of="$OUTFILE"
         test_last_command_successful $?
         echo "Schreibe Firmware ins Abbild..."
-        dd status=none conv=notrunc obs=4k seek=32 if=gluon-tp-link-${model}-sysupgrade.bin of="$OUTFILE"
+        dd status=none conv=notrunc obs=4k seek=32 if=gluon-tp-link-tl-wr841n-${FLASHSIZE_SMALL}-${hwversion}-sysupgrade.bin of="$OUTFILE"
         test_last_command_successful $?
         echo "Schreibe MAC Adresse ins Abbild..."
         printf $MAC_IN_HEX | dd status=none conv=notrunc ibs=1 obs=256 seek=508 count=8 of="$OUTFILE"
