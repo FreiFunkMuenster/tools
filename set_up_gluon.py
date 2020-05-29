@@ -210,7 +210,7 @@ def establish_serial_connection():
 
 def configure_gluon():
     global domain
-    command = "uci set gluon-setup-mode.@setup_mode[0].configured='1';uci set tunneldigger.@broker[0].enabled='1';uci set system.@system[0].hostname='"+domain+"-virtueller-Testknoten';uci set network.mesh_lan.auto=0;for ifname in $(cat /lib/gluon/core/sysconfig/lan_ifname); do uci add_list network.client.ifname=$ifname;done;uci commit;reboot\r"
+    command = "uci set gluon-setup-mode.@setup_mode[0].configured='1';uci set tunneldigger.mesh_vpn.enabled='1';uci set system.@system[0].hostname='"+domain+"-virtueller-Testknoten';uci set network.mesh_lan.disabled=1;for ifname in $(cat /lib/gluon/core/sysconfig/lan_ifname); do uci add_list network.client.ifname=$ifname;done;uci commit;reboot\r"
     send_command(command)
 
 

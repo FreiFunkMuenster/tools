@@ -43,8 +43,8 @@ def execute_command(serial, command_string):
 def report_if_failed(result):
     global one_failed
     if not result.passed():
-        curl_command = '''curl -d '{"color":"red","message":"''' + result.report().replace('\r', ' ').replace('\n', ' ').replace('"', '\\"').replace("'", "\\'") + '''","notify":false,"message_format":"text"}' -H 'Content-Type: application/json' https://hc.infrastruktur.ms/v2/room/13/notification?auth_token=HeoSTcIvLsm8MXD4WefcEVfbXKXKemLtTFxbWoxj'''
-        os.system(curl_command)
+#        curl_command = '''curl -d '{"color":"red","message":"''' + result.report().replace('\r', ' ').replace('\n', ' ').replace('"', '\\"').replace("'", "\\'") + '''","notify":false,"message_format":"text"}' -H 'Content-Type: application/json' https://hc.infrastruktur.ms/v2/room/13/notification?auth_token=HeoSTcIvLsm8MXD4WefcEVfbXKXKemLtTFxbWoxj'''
+#        os.system(curl_command)
         one_failed = True
 
 def run_test(test):
