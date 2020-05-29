@@ -9,10 +9,13 @@ import libvirt
 import xml.etree.ElementTree as ET
 import serial
 import time
+import re
 
 DEFAULT_DESTINATION_PATH="/var/lib/libvirt/images"
 
 LIBVIRT_SYSTEM_PATH='qemu:///system'
+
+IMAGE_PATH='https://firmware.freifunk-muensterland.de/domaene01/versions/v4.2.0/factory/gluon-ffmsd01-v2018.2.3%2B4.2.0-x86-64.img.gz'
 
 name = None
 domain = None
@@ -139,12 +142,27 @@ TEMPLATE_NETZ="""<network connections='1'>
   <bridge stp='on' delay='0'/>
 </network>"""
 
+def is_domain_id(inputString):
+   if re.match('^ffmsd\d\d$', inputString):
+      return True
+   return False
+      
+def return_url_based_on_id(inputString):
+   return IMAGE_PATH.replace('domaene01', 'domaene'+inputString[-2:]).replace('ffmsd01', inputString)
+
 def download_image_file_and_unzip_it(link):
    global name
-   splits = sys.argv[1].split('/')
+   url = ""
+   if is_domain_id(sys.argv[1]):
+      url = return_url_based_on_id(sys.argv[1])
+      print('url ersetzt: ' + url)
+   else:
+      url = sys.argv[1] 
+   splits = url.split('/')
    n = len(splits)
    name = urllib.parse.unquote(splits[n-1])
-   resultFilePath, responseHeaders = urllib.request.urlretrieve(sys.argv[1], name)
+   
+   resultFilePath, responseHeaders = urllib.request.urlretrieve(url, name)
 
    inF = gzip.open(name, 'rb')
    outF = open(DEFAULT_DESTINATION_PATH + '/' + name.replace(".gz", ""), 'wb')
