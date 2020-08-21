@@ -122,6 +122,10 @@ do
 
         echo "Lösche Abbild..."
         rm ${OUTFILE}
+        modprobe pcspkr
+        beep -f 2000 -l 3000
+        sleep 1s
+        beep -f 2000 -l 3000
 
 	read -s -n 1 -p "Bitte Taste drücken um mit dem nächsten Router fortzufahren..."
     fi
