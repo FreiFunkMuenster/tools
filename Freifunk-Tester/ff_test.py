@@ -16,7 +16,7 @@ import requests
 import json
 
 PING_COUNT=4
-NAME_OF_DEBIAN_TESTMACHINE="Testdebian"
+NAME_OF_DEBIAN_TESTMACHINE="Testdebian-Icinga"
 LIBVIRT_SYSTEM_PATH='qemu:///system'
 PATH_FOR_REPORTS='/root/testresults'
 
@@ -43,8 +43,8 @@ def execute_command(serial, command_string):
 def report_if_failed(result):
     global one_failed
     if not result.passed():
-        curl_command = '''curl -d '{"color":"red","message":"''' + result.report().replace('\r', ' ').replace('\n', ' ').replace('"', '\\"').replace("'", "\\'") + '''","notify":false,"message_format":"text"}' -H 'Content-Type: application/json' https://hc.infrastruktur.ms/v2/room/13/notification?auth_token=HeoSTcIvLsm8MXD4WefcEVfbXKXKemLtTFxbWoxj'''
-        os.system(curl_command)
+#        curl_command = '''curl -d '{"color":"red","message":"''' + result.report().replace('\r', ' ').replace('\n', ' ').replace('"', '\\"').replace("'", "\\'") + '''","notify":false,"message_format":"text"}' -H 'Content-Type: application/json' https://hc.infrastruktur.ms/v2/room/13/notification?auth_token=HeoSTcIvLsm8MXD4WefcEVfbXKXKemLtTFxbWoxj'''
+#        os.system(curl_command)
         one_failed = True
 
 def run_test(test):
@@ -53,8 +53,6 @@ def run_test(test):
     result.print_report()
     result.output_to_file(PATH_FOR_REPORTS + '/' + test._domain + '_' + test._short_description.replace(' ', '-') + '_' + test._gateway)
     result.report_to_icinga()
-    #report_if_failed(result)
-    
 
 def report_if_none_failed():
     global one_failed
