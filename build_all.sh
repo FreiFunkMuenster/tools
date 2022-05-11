@@ -90,7 +90,7 @@ function notify () {
                 curl --max-time 10 -d "chat_id=$TELEGRAM_NOTIFY_CHATID&text=$MESSAGE" $TELEGRAM_NOTIFY_URL
         fi
         if [ ! -z "$ZULIP_NOTIFY_URL" ]; then
-		curl --silent --output /dev/null $ZULIP_NOTIFY_URL -u $(cat ZULIP_AUTH_TOKEN) -d "type=stream" -d "to=Firmware Log" -d "subject=Log" -d "content=$MESSAGE" 2> /dev/null
+		curl --silent --output /dev/null $ZULIP_NOTIFY_URL -u $(cat ZULIP_AUTH_TOKEN) -d "type=stream" -d "to=Firmware Log" -d "subject=Log-$(hostname)" -d "content=$MESSAGE" 2> /dev/null
         fi
 }
 
@@ -343,7 +343,7 @@ function try_execution_x_times () {
 }
 
 function build_target_for_domaene () {
-	command="make $MAKE_OPTS GLUON_BRANCH=stable GLUON_TARGET=$1 GLUON_IMAGEDIR=\"$imagedir\""
+	command="make $MAKE_OPTS GLUON_AUTOUPDATER_BRANCH=stable GLUON_AUTOUPDATER_ENABLED=1 GLUON_TARGET=$1 GLUON_IMAGEDIR=\"$imagedir\""
 	try_execution_x_times $RETRIES "$command"
 }
 
