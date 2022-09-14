@@ -90,7 +90,7 @@ function notify () {
                 curl --max-time 10 -d "chat_id=$TELEGRAM_NOTIFY_CHATID&text=$MESSAGE" $TELEGRAM_NOTIFY_URL
         fi
         if [ ! -z "$ZULIP_NOTIFY_URL" ]; then
-		curl --silent --output /dev/null $ZULIP_NOTIFY_URL -u $(cat ZULIP_AUTH_TOKEN) -d "type=stream" -d "to=Firmware Log" -d "subject=Log" -d "content=$MESSAGE" 2> /dev/null
+		curl --silent --output /dev/null $ZULIP_NOTIFY_URL -u $(cat ZULIP_AUTH_TOKEN) -d "type=stream" -d "to=Firmware Log" -d "subject=Log-$(hostname)" -d "content=$MESSAGE" 2> /dev/null
         fi
 }
 
@@ -277,6 +277,10 @@ function prepare_repo () {
 	fi
 }
 
+function apply_all_site_patches () {
+	git -C "$1" am $2
+}
+
 function force_dir_clean () {
 	command="make dirclean $MAKE_OPTS"
 	try_execution_x_times $RETRIES "$command"
@@ -304,6 +308,7 @@ function get_all_targets_from_gluon_repo () {
 function check_targets () {
 	if [[ $TARGETS == "" ]]
 	then
+		echo $(get_all_targets_from_gluon_repo)
 		TARGETS=$(get_all_targets_from_gluon_repo)
 	fi
 }
@@ -338,7 +343,7 @@ function try_execution_x_times () {
 }
 
 function build_target_for_domaene () {
-	command="make $MAKE_OPTS GLUON_BRANCH=stable GLUON_TARGET=$1 GLUON_IMAGEDIR=\"$imagedir\""
+	command="make $MAKE_OPTS GLUON_AUTOUPDATER_BRANCH=stable GLUON_AUTOUPDATER_ENABLED=1 GLUON_TARGET=$1 GLUON_IMAGEDIR=\"$imagedir\""
 	try_execution_x_times $RETRIES "$command"
 }
 
@@ -378,7 +383,7 @@ function build_selected_domains_and_selected_targets () {
 
 function synchronize_to_external_server () {
 	notify "yellow" "Synchronisiere Daten mit dem Firmware-Server" true
-	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 22 -4" /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
+	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_rsa -p 22 " /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
        	notify "green" "Synchronisierung der Daten abgeschlossen." true
 }
 
@@ -388,6 +393,7 @@ build_make_opts
 prepare_repo "$GLUON_SITEDIR" $SITE_URL
 prepare_repo "$GLUON_DIR" $GLUON_URL
 git_checkout "$GLUON_DIR" $GLUON_VERSION
+apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"patches/*"
 check_targets
 check_domains
 if [[ $SKIP_GLUON_PREBUILD_ACTIONS == 0 ]]

@@ -2,8 +2,13 @@
 
 PRIORITY=0
 
-cd $1
-datum='2016-01-01 14:24:59+00:00'
+if [ "$1" == "" ]; then
+	echo "fehlender parameter Pfad"
+	exit 0
+fi
+
+cd "$1"
+datum='2022-01-01 14:24:59+00:00'
 
 for i in stable beta experimental; do
 	echo "BRANCH=$i" > $i.manifest
