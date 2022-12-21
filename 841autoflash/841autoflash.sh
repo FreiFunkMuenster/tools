@@ -81,7 +81,8 @@ do
         if [ ! -s uboot-tp-link-tl-wr841n-${hwversion}.bin ]
         then
             echo "Uboot-Abbild fehlt, lade es herunter."
-            wget -nv -O uboot-tp-link-tl-wr841n-${hwversion}.bin http://derowe.com/u-boot/stable/tp-link-tl-wr841n-${hwversion}.bin;
+            #wget -nv -O uboot-tp-link-tl-wr841n-${hwversion}.bin http://derowe.com/u-boot/stable/tp-link-tl-wr841n-${hwversion}.bin;
+            wget -nv -O uboot-tp-link-tl-wr841n-${hwversion}.bin https://github.com/FreiFunkMuenster/tools/blob/master/841autoflash/uboot-images/uboot-tp-link-tl-wr841n-${hwversion}.bin?raw=true;
             test_last_command_successful $?
         fi
 
