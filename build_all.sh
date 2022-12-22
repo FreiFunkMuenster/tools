@@ -305,7 +305,7 @@ function gluon_prepare_buildprocess () {
 }
 
 function get_all_targets_from_gluon_repo () {
-	echo `make $MAKE_OPTS GLUON_TARGET= 2> /dev/null |grep -v 'Please\|make\|Makefile'|sed -e 's/.* \* //g'`
+	echo `make list-targets $MAKE_OPTS 2> /dev/null |grep -v 'Please\|make\|Makefile'|sed -e 's/.* \* //g'`
 }
 
 function check_targets () {
@@ -396,14 +396,14 @@ build_make_opts
 prepare_repo "$GLUON_SITEDIR" $SITE_URL
 prepare_repo "$GLUON_DIR" $GLUON_URL
 git_checkout "$GLUON_DIR" $GLUON_VERSION
-apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"patches/*"
+apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"/patches/*"
 check_targets
 check_domains
 if [[ $SKIP_GLUON_PREBUILD_ACTIONS == 0 ]]
 then
 	gluon_prepare_buildprocess
 fi
-apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"patches/*"
+apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"/patches/*"
 build_selected_domains_and_selected_targets
 notify "green" "Build $GLUON_VERSION+$VERSION abgeschlossen." true
 #synchronize_to_external_server
