@@ -329,6 +329,7 @@ function try_execution_x_times () {
 	return_value=1
 	while [[ $return_value != 0 && $tries_left -gt 0 ]]
 	do
+		notify "green" "Noch ${tries_left} Versuche verbleibend: {$@}" false
 		let tries_left-=1
 		echo "$@" | bash
 		return_value=$?
