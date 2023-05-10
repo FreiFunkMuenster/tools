@@ -230,7 +230,7 @@ All parameters can be set in one of the following ways: -e <value>, -e<value>, -
 
 	-g --gluon-dir: Path to Gluon-Git-Folder. Default is "../gluon".
 	-s --site-dir: Path to the site config. Default is "../site".
-	-o --output-prefix: Prefix for output folder, default is "/var/www/html".
+	-o --output-prefix: Prefix for output folder, default is "/mnt/firmware/output/".
 	--gluon-url: URL to Gluon repository, default is "https://github.com/freifunk-gluon/gluon.git".
 	--site-url: URL to the site configuration. Default is site-ffms of Freifunk Münsterland.
 	-D --enable-debugging: Enables debugging by setting "set -x". This must be the first parameter, if you want to debug the parameter parsing.
