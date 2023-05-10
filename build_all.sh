@@ -1,5 +1,5 @@
 #!/bin/bash
-DEFAULT_GLUON_IMAGEDIR_PREFIX='/var/www/html/'
+DEFAULT_GLUON_IMAGEDIR_PREFIX='/mnt/firmware/output/'
 DEFAULT_GLUON_SITEDIR=`dirname \`pwd\``'/site/'
 DEFAULT_SITE_URL="https://github.com/FreiFunkMuenster/site-ffmsl.git"
 DEFAULT_GLUON_URL="https://github.com/freifunk-gluon/gluon.git"
