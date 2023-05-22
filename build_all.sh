@@ -358,7 +358,7 @@ function make_manifests () {
 
 
 function build_selected_targets_for_domaene () {
-	prefix=`echo $1|sed -e 's/Domäne-\([0-9]\+\)\(-v201.*\)\?/domaene\1/g'`
+	prefix=`echo $1|sed -e 's/Domäne-\([0-9]\+\)\(-v20.*\)\?/domaene\1/g'`
 	imagedir="$GLUON_IMAGEDIR_PREFIX"/"$prefix"/versions/v$VERSION
 	mkdir -p "$imagedir"
 	git_checkout "$GLUON_SITEDIR" $1
