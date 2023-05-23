@@ -33,6 +33,19 @@ SKIP_GLUON_PREBUILD_ACTIONS=""
 imagedir=""
 FORCE_DIR_CLEAN=""
 
+function sec_to_time () {
+	local seconds=$1
+	local sign=""
+	if [[ ${seconds:0:1} == "-" ]]; then
+		seconds=${seconds:1}
+		sign="-"
+	fi
+	local hours=$(( seconds / 3600 ))
+	local minutes=$(( (seconds % 3600) / 60 ))
+	seconds=$(( seconds % 60 ))
+	printf "%s%02d:%02d:%02d" "$sign" $hours $minutes $seconds
+}
+
 function expand_relativ_path () {
 	echo ${1/../$(dirname $(pwd))}
 }
@@ -374,8 +387,10 @@ function build_selected_domains_and_selected_targets () {
 	for i in $DOMAINS_TO_BUILD
 	do
 		notify "$i gestartet." 
+		START=`date +%s`
 		build_selected_targets_for_domaene $i
-		notify "$i fertig."
+		STOP=`date +%s`
+		notify "$i fertig. Laufzeit: $(sec_to_time $(($STOP - $START)))"
 	done
 }
 
