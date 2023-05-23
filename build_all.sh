@@ -76,12 +76,7 @@ function split_value_from_argument () {
 }
 
 function notify () {
-	COLOR=$1
-	MESSAGE=$2
-	NOTIFY=$3
-	if [ ! -z "$HIPCHAT_NOTIFY_URL" ]; then
-		curl -d '{"color":"'"$COLOR"'","message":"'"$(hostname) --> $MESSAGE"'","notify":"'"$NOTIFY"'","message_format":"text"}' -H 'Content-Type: application/json' $HIPCHAT_NOTIFY_URL
-	fi
+	MESSAGE=$1
         if [ ! -z "$TELEGRAM_NOTIFY_URL" ]; then
                 curl --max-time 10 -d "chat_id=$TELEGRAM_NOTIFY_CHATID&text=$MESSAGE" $TELEGRAM_NOTIFY_URL
         fi
@@ -329,14 +324,14 @@ function try_execution_x_times () {
 	return_value=1
 	while [[ $return_value != 0 && $tries_left -gt 0 ]]
 	do
-		notify "green" "Noch ${tries_left} Versuche verbleibend: {$@}" false
+		notify "Noch ${tries_left} Versuche verbleibend: {$@}"
 		let tries_left-=1
 		echo "$@" | bash
 		return_value=$?
 	done
 	if [[ ! $return_value == 0 ]]
 	then
-		notify "red" "Build abgebrochen." true
+		notify "@*Firmwareteam* Build abgebrochen!"
 		echo "Something went wrong. Aborting."
 		exit 1
 	fi
@@ -348,11 +343,11 @@ function build_target_for_domaene () {
 }
 
 function make_manifests () {
-	notify "purple" "Erstelle experimental-Manifest" false
+	notify "Erstelle experimental-Manifest"
 	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=experimental GLUON_PRIORITY=0 $MAKE_OPTS GLUON_IMAGEDIR="$1"
-        notify "purple" "Erstelle beta-Manifest" false
+        notify "Erstelle beta-Manifest"
 	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=beta GLUON_PRIORITY=1 $MAKE_OPTS GLUON_IMAGEDIR="$1"
-        notify "purple" "Erstelle stable-Manifest" false
+        notify "Erstelle stable-Manifest"
 	make manifest GLUON_RELEASE=$GLUON_VERSION+$VERSION GLUON_BRANCH=stable GLUON_PRIORITY=3 $MAKE_OPTS GLUON_IMAGEDIR="$1"
 }
 
@@ -365,9 +360,9 @@ function build_selected_targets_for_domaene () {
 	git_pull "$GLUON_SITEDIR"
 	for j in $TARGETS
 	do
-		notify "yellow" "$i Target $j gestartet." false
+		notify "$i Target $j gestartet."
 		build_target_for_domaene $j
-		notify "yellow" "$i Target $j fertig." false
+		notify "$i Target $j fertig."
 	done
 	make_manifests $imagedir
 }
@@ -375,20 +370,20 @@ function build_selected_targets_for_domaene () {
 function build_selected_domains_and_selected_targets () {
 	for i in $DOMAINS_TO_BUILD
 	do
-		notify "purple" "$i gestartet." false
+		notify "$i gestartet." 
 		build_selected_targets_for_domaene $i
-		notify "purple" "$i fertig." false
+		notify "$i fertig."
 	done
 }
 
 function synchronize_to_external_server () {
-	notify "yellow" "Synchronisiere Daten mit dem Firmware-Server" true
+	notify "Synchronisiere Daten mit dem Firmware-Server"
 	test -e /var/lock/rsync-upload && exit 0 || (touch /var/lock/rsync-upload;/usr/bin/rsync -av -e "ssh -i /root/.ssh/id_ed25519 -p 22 " /var/www/html/ root@firmware.ffmsl.de:/var/www/html;rm /var/lock/rsync-upload)
-       	notify "green" "Synchronisierung der Daten abgeschlossen." true
+       	notify "Synchronisierung der Daten abgeschlossen."
 }
 
 process_arguments "$@"
-notify "green" "Build $GLUON_VERSION+$VERSION gestartet." true
+notify "Build $GLUON_VERSION+$VERSION gestartet."
 build_make_opts
 prepare_repo "$GLUON_SITEDIR" $SITE_URL
 prepare_repo "$GLUON_DIR" $GLUON_URL
@@ -402,5 +397,5 @@ then
 fi
 apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"/patches/*"
 build_selected_domains_and_selected_targets
-notify "green" "Build $GLUON_VERSION+$VERSION abgeschlossen." true
+notify "@*Firmwareteam* Build $GLUON_VERSION+$VERSION abgeschlossen."
 #synchronize_to_external_server
