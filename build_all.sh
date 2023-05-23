@@ -284,7 +284,7 @@ function force_dir_clean () {
 function gluon_prepare_buildprocess () {
 	command="make update ${MAKE_OPTS/-j* /-j1 }"
 	try_execution_x_times $RETRIES "$command"
-	if [[ $FORCE_DIR_CLEAN=="1" ]]
+	if [[ $FORCE_DIR_CLEAN -eq 1 ]]
 	then
 		force_dir_clean
 	fi
