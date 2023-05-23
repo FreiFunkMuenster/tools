@@ -146,7 +146,7 @@ function process_arguments () {
 			-D|--enable-debugging)
 				enable_debugging
 				;;
-			-f|--force-dir-clean)
+			-F|--force-dir-clean)
 				FORCE_DIR_CLEAN=1
 				;;
 			-B|--enable-broken)
@@ -234,7 +234,8 @@ All parameters can be set in one of the following ways: -e <value>, -e<value>, -
 	-S --skip-gluon-prebuilds: Skip make dirclean of Gluon folder.
 	-d --domain: Branches of your site-Git-repository to build. If left empty, all Domäne-XX will be build. This parameter can be used multiple times or you can set multiple branches at once, seperated by space and in quotes: "branch1 branch2 branch3".
 	-t*|--target: Targets to build. If left empty, all targets will be build. If broken is set, even those will be build. This parameter can be used multiple times or you can set multiple targets at once, seperated by space and in quotes: "target1 target2 target3".
-	-f --force-dire-clean: Force a make dir clean after each target.
+	-F --force-dire-clean: Force a make dir clean after each target.
+	-f --force-retries: Number of retries before the build fails.
 
 Please report issues here: https://github.com/FreiFunkMuenster/tools/issues
 
