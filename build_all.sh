@@ -272,6 +272,7 @@ function prepare_repo () {
 function apply_all_site_patches () {
 	echo "*******************PATCHES*******************"
 	echo "$1 $2"
+	git am --abort
 	git -C "$1" am $2
 	echo "*******************PATCHES*******************"
 }
@@ -359,6 +360,7 @@ function build_selected_targets_for_domaene () {
 	mkdir -p "$imagedir"
 	git_checkout "$GLUON_SITEDIR" $1
 	git_pull "$GLUON_SITEDIR"
+	apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"patches/*"
 	for j in $TARGETS
 	do
 		notify "$i Target $j gestartet."
@@ -389,14 +391,18 @@ build_make_opts
 prepare_repo "$GLUON_SITEDIR" $SITE_URL
 prepare_repo "$GLUON_DIR" $GLUON_URL
 git_checkout "$GLUON_DIR" $GLUON_VERSION
-apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"/patches/*"
+for i in $DOMAINS_TO_BUILD
+do
+	git_checkout "$GLUON_SITEDIR" $i
+	break
+done
+apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"patches/*"
 check_targets
 check_domains
 if [[ $SKIP_GLUON_PREBUILD_ACTIONS == 0 ]]
 then
 	gluon_prepare_buildprocess
 fi
-apply_all_site_patches "$GLUON_DIR" $GLUON_SITEDIR"/patches/*"
 build_selected_domains_and_selected_targets
 notify "@*Firmwareteam* Build $GLUON_VERSION+$VERSION abgeschlossen."
 #synchronize_to_external_server
