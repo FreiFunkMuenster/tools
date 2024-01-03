@@ -6,8 +6,8 @@
 
 PUBLIC_SIG_KEY='xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
 PATH_TO_SECRET_SIG_KEY='/root/secret'
-FIRMWARESERVER_HOST='root@ffhost01.yadn.de'
-FIRMWARESERVER_PORT='223'
+FIRMWARESERVER_HOST='root@firmware.ffmsl.de'
+FIRMWARESERVER_PORT='22'
 FIRMWARESERVER_MOUNTPOINT='/media/firmware'
 
 read -p "Version?: " VERSION
