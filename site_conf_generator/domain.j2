@@ -1,0 +1,71 @@
+{
+  domain_names = {
+    {{ domain_data.site_code }} = '{{ domain_data.ort  }}',
+  },
+
+  domain_seed = '{{ domain_data.domain_seed }}',
+
+  prefix4 = '{{ domain_data.prefix4 }}0/16',
+  prefix6 = '{{ domain_data.prefix6 }}/64',
+
+  extra_prefixes6 = {
+    '{{ domain_data.old_prefix6 }}/64',
+  }
+  next_node = {
+    name = { 'knoten', },
+    ip4 = '{{ domain_data.prefix4 }}.1',
+    ip6 = '{{ domain_data.prefix6 }}1',
+    mac = 'de:ad:be:ef:08:01',
+  },
+
+  wifi24 = {
+    channel = 1,
+    ap = {
+      ssid = "Freifunk",
+    },
+    mesh = {
+      id = '{{ domain_data.mesh_id }}',
+      mcast_rate = 12000,
+    },
+  },
+
+  wifi5 = {
+    channel = 44,
+    ap = {
+      ssid = "Freifunk",
+    },
+    mesh = {
+      id = '{{ domain_data.mesh_id }}',
+      mcast_rate = 12000,
+    },
+  },
+
+  dns = {
+    -- cacheentries = 20000,
+    servers = { '{{ domain_data.prefix6 }}2', '{{ domain_data.prefix6 }}3' },
+  },
+
+  mesh = {
+    batman_adv = {
+      routing_algo = 'BATMAN_IV',
+    },
+    vxlan = false,
+  },
+
+  mesh_vpn = {
+    mtu = 1364,
+    tunneldigger = {
+      brokers = {
+        '{{ domain_data.Domäne }}-a.servers.freifunk-muensterland.de:200{{ domain_data.Nummer_im_GIT }}',
+        '{{ domain_data.Domäne }}-b.servers.freifunk-muensterland.de:200{{ domain_data.Nummer_im_GIT }}',
+        '{{ domain_data.Domäne }}-a.servers.freifunk-muensterland.net:200{{ domain_data.Nummer_im_GIT }}',
+        '{{ domain_data.Domäne }}-b.servers.freifunk-muensterland.net:200{{ domain_data.Nummer_im_GIT }}',
+      },
+    },
+    bandwidth_limit = {
+      enabled = false,
+      ingress = 25000,
+      egress = 5000,
+    },
+  },
+}
