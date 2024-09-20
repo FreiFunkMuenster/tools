@@ -1,6 +1,6 @@
 {
   domain_names = {
-    {{ domain_data.site_code }} = '{{ domain_data.ort  }}',
+    {{ domain_data.site_code }} = '{{ domain_data.ort }}',
   },
 
   domain_seed = '{{ domain_data.domain_seed }}',
@@ -13,7 +13,7 @@
   }
   next_node = {
     name = { 'knoten', },
-    ip4 = '{{ domain_data.prefix4 }}.1',
+    ip4 = '{{ domain_data.prefix4 }}1',
     ip6 = '{{ domain_data.prefix6 }}1',
     mac = 'de:ad:be:ef:08:01',
   },
@@ -42,7 +42,7 @@
 
   dns = {
     -- cacheentries = 20000,
-    servers = { '{{ domain_data.prefix6 }}2', '{{ domain_data.prefix6 }}3' },
+    servers = { '{{ domain_data.old_prefix6 }}2', '{{ domain_data.old_prefix6 }}3' },
   },
 
   mesh = {
