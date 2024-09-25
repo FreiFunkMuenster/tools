@@ -6,15 +6,16 @@
   domain_seed = '{{ domain_data.domain_seed }}',
 
   prefix4 = '{{ domain_data.prefix4 }}0/16',
-  prefix6 = '{{ domain_data.prefix6 }}/64',
+  prefix6 = '{{ domain_data.old_prefix6 }}/64',
 
   extra_prefixes6 = {
-    '{{ domain_data.old_prefix6 }}/64',
-  }
+    '{{ domain_data.prefix6 }}/64',
+  },
+
   next_node = {
     name = { 'knoten', },
     ip4 = '{{ domain_data.prefix4 }}1',
-    ip6 = '{{ domain_data.prefix6 }}1',
+    ip6 = '{{ domain_data.old_prefix6 }}1',
     mac = 'de:ad:be:ef:08:01',
   },
 
