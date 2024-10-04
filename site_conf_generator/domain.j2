@@ -1,8 +1,8 @@
 {
   domain_names = {
-    {{ domain_data.site_code }} = '{{ domain_data.ort }}',
+    {{ domain_data.site_code }} = '{{ domain_data.ort }} (Dom {{ domain_data.Nummer }})',
   },
-
+  hide_domain = {{ domain_data.hide_domain }},
   domain_seed = '{{ domain_data.domain_seed }}',
 
   prefix4 = '{{ domain_data.prefix4 }}0/16',
